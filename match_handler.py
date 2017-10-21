@@ -21,9 +21,10 @@ while isNext:
     if not matchStr:
         isNext = False
         break
-    '''if misc.checkAndDeleteMatchDetail(conn,cursor,matchStr[0]):
-        continue'''
     print('matchId='+str(matchStr[0]))
+    if misc.checkAndDeleteMatchDetail(conn,cursor,matchStr[0]):
+        print('continue')
+        continue
     match = misc.getMatch(matchStr)#获取match
     companyList, companyMap = misc.getCompanyList(conn, cursor,matchStr)#获取company列表
     oddsList = misc.getOddsList(matchStr, companyMap)#获取所有odds
@@ -35,6 +36,7 @@ while isNext:
             cursor.execute(oddsInsertSql, odds)
         cursor.execute(matchDetailDeleteSql, matchStr[0])
         conn.commit()
+        print('success')
     except:
         conn.rollback()
         print('fail')
