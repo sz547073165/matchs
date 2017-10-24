@@ -24,10 +24,22 @@ def getMatch(matchStr):
     match.append(simpleList[8])#guest
     match.append(int(simpleList[14]))#home_goal
     match.append(int(simpleList[15]))#guest_goal
-    match.append(int(simpleList[16]))#home_goal_h
-    match.append(int(simpleList[17]))#guest_goal_h
-    match.append(float(simpleList[29]))#point
-    match.append(float(simpleList[46]))#goals
+    if simpleList[16]:
+        match.append(int(simpleList[16]))#home_goal_h
+    else:
+        match.append(-100)
+    if simpleList[17]:
+        match.append(int(simpleList[17]))#guest_goal_h
+    else:
+        match.append(-100)
+    if simpleList[29]:
+        match.append(float(simpleList[29]))#point
+    else:
+        match.append(-100)
+    if simpleList[46]:
+        match.append(float(simpleList[46]))#goals
+    else:
+        match.append-(-100)
     match.append(int(simpleList[48]))#home_corner
     match.append(int(simpleList[49]))#guest_corner
     match.append(int(simpleList[18]))#home_red
@@ -93,3 +105,19 @@ def checkAndDeleteMatchDetail(conn, cursor, matchId):
         conn.commit()
         return True
     return False
+
+'''match_handler_with_thread'''
+
+def get_ten_match_detail(conn, cursor):
+    sql = 'select id, simple, detail from match_detail limit 0, 10'
+    cursor.execute(sql)
+    match_list = cursor.fetchall()
+    return match_list
+
+def check_match_detail(conn, cursor, match_id):
+    match_select_sql = 'select match_id from `match` where match_id = %s'
+    cursor.execute(match_select_sql, match_id)
+    result = cursor.fetchone()
+    if result:
+        match_detail_delete_sql = 'delete from match_detail where id = %s' % match_id
+        return  match_detail_delete_sql
