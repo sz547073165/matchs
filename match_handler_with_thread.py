@@ -41,15 +41,16 @@ def one_match_handler(match):
             print('已存在matchId=%s'%match_id)
         else:
             match_obj = misc.getMatch(match)#获取match
-            company_list, company_map = misc.getCompanyList(sub_conn, sub_conn.cursor(), match)#获取company列表
-            odds_list = misc.getOddsList(match, company_map)#获取所有odds
-            sql_list.add(matchInsertSql % tuple(match_obj))
-            for company in company_list:
-                sql_list.add(companyInsertSql % tuple(company))
-            for odds in odds_list:
-                sql_list.add(oddsInsertSql % tuple(odds))
-            match_detail_delete_sql = 'delete from match_detail where id = %s' % match_id
-            sql_list.add(match_detail_delete_sql)
+            if match_obj:
+                company_list, company_map = misc.getCompanyList(sub_conn, sub_conn.cursor(), match)#获取company列表
+                odds_list = misc.getOddsList(match, company_map)#获取所有odds
+                sql_list.add(matchInsertSql % tuple(match_obj))
+                for company in company_list:
+                    sql_list.add(companyInsertSql % tuple(company))
+                for odds in odds_list:
+                    sql_list.add(oddsInsertSql % tuple(odds))
+                match_detail_delete_sql = 'delete from match_detail where id = %s' % match_id
+                sql_list.add(match_detail_delete_sql)
     finally:
         sub_conn.close()
 

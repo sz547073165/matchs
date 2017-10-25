@@ -14,9 +14,11 @@ def getOneMatchDetail(conn, cursor):
     return matchStr
 
 def getMatch(matchStr):
+    match = []
+    if not matchStr[1]:
+        return match
     simpleStr = matchStr[1].replace('["','').replace('"]','')#获取simple字段部分
     simpleList = simpleStr.split('","')
-    match = []
     match.append(int(simpleList[0]))#id
     match.append(simpleList[2])#league
     match.append(str(simpleList[43])+'-'+str(simpleList[36])+' '+ str(simpleList[11])+':00')#time
@@ -74,6 +76,8 @@ def getCompanyList(conn, cursor, matchStr):
 
 def getOddsList(matchStr, companyMap):
     oddsList = []
+    if not matchStr[1]:
+        return oddsList
     matchId = matchStr[1].replace('["','').replace('"]','').split('","')[0]
     year = matchStr[1].replace('["','').replace('"]','').split('","')[43]
     gameDetailsStr = matchStr[2]#获取detail字段部分
