@@ -18,9 +18,6 @@ oddsInsertSql = 'insert into odds (match_id, companys_id, time, win, draw, lose,
 '''初始化数据库连接'''
 conn = pymysql.connect(host='localhost', port=3306, user='spider', passwd='spider', db='matchs', charset='UTF8')
 cursor = conn.cursor()
-'''获取10条match_detail'''
-match_list = misc.get_ten_match_detail(conn, cursor)
-sql_list = set()
 
 class my_thread(threading.Thread):
     def __init__(self, thread_name, match):
@@ -28,18 +25,20 @@ class my_thread(threading.Thread):
         self.thread_name = thread_name
         self.match = match
     def run(self):
-        print('%s开始，，，\n'% self.thread_name)
+        print('%s开始，，，'% self.thread_name)
         one_match_handler(self.match)
-        print('%s结束，，，\n'% self.thread_name)
+        print('%s结束，，，'% self.thread_name)
 
 def one_match_handler(match):
     sub_conn = pymysql.connect(host='localhost', port=3306, user='spider', passwd='spider', db='matchs', charset='UTF8')
     try:
         match_id = match[0]
-        print('matchId=%s\n'%match_id)
+        print('matchId=%s'%match_id)
         is_exists = misc.check_match_detail(sub_conn, sub_conn.cursor(), match_id)
         if is_exists:
             sql_list.add(is_exists)
+            print(is_exists)
+            print('已存在matchId=%s'%match_id)
         else:
             match_obj = misc.getMatch(match)#获取match
             company_list, company_map = misc.getCompanyList(sub_conn, sub_conn.cursor(), match)#获取company列表
@@ -49,30 +48,42 @@ def one_match_handler(match):
                 sql_list.add(companyInsertSql % tuple(company))
             for odds in odds_list:
                 sql_list.add(oddsInsertSql % tuple(odds))
+            match_detail_delete_sql = 'delete from match_detail where id = %s' % match_id
+            sql_list.add(match_detail_delete_sql)
     finally:
         sub_conn.close()
-        
-thread_list = []
-for i in range(len(match_list)):
-    thread_list.append(my_thread('thread-%s'%i, match_list[i]))
 
-for thread in thread_list:
-    thread.start()
-for thread in thread_list:
-    thread.join()
+is_next = True
+while is_next:
+    '''获取10条match_detail'''
+    match_list = []
+    match_list = misc.get_ten_match_detail(conn, cursor)
+    if not match_list:
+        is_next = False
+    sql_list = set()
+    thread_list = []
+    
+    for i in range(len(match_list)):
+        thread_list.append(my_thread('thread-%s'%i, match_list[i]))
+    
+    for thread in thread_list:
+        thread.start()
+    for thread in thread_list:
+        thread.join()
+    
+    time.sleep(0.1)
+    print(len(sql_list))
+    
+    for sql in sql_list:
+        cursor.execute(sql)
+    
+    try:
+        conn.commit()
+        print('success')
+    except:
+        conn.rollback()
+        print('fail')
 
-time.sleep(0.1)
-print(len(sql_list))
-
-for sql in sql_list:
-    cursor.execute(sql)
-
-try:
-    conn.commit()
-    print('success')
-except:
-    conn.rollback()
-    print('fail')
 conn.close()
 
 print('end\n')

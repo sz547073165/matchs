@@ -39,7 +39,7 @@ def getMatch(matchStr):
     if simpleList[46]:
         match.append(float(simpleList[46]))#goals
     else:
-        match.append-(-100)
+        match.append(-100)
     match.append(int(simpleList[48]))#home_corner
     match.append(int(simpleList[49]))#guest_corner
     match.append(int(simpleList[18]))#home_red
@@ -52,6 +52,8 @@ def getCompanyList(conn, cursor, matchStr):
     companyList = []
     companyMap = {}
     gamesStr = matchStr[2]#获取detail字段部分
+    if len(re.findall(r'var game=Array\(\"(.*?)\"\);',gamesStr))==0:
+        return companyList, companyMap
     gamesList = re.findall(r'var game=Array\(\"(.*?)\"\);',gamesStr)[0].split('","')
     for game in gamesList:
         gameList = game.split('|')
@@ -71,11 +73,13 @@ def getCompanyList(conn, cursor, matchStr):
     return companyList, companyMap
 
 def getOddsList(matchStr, companyMap):
+    oddsList = []
     matchId = matchStr[1].replace('["','').replace('"]','').split('","')[0]
     year = matchStr[1].replace('["','').replace('"]','').split('","')[43]
     gameDetailsStr = matchStr[2]#获取detail字段部分
+    if len(re.findall(r'gameDetail=Array\(\"(.*?)\"\);',gameDetailsStr))==0:
+        return oddsList
     gameDetailsList = re.findall(r'gameDetail=Array\(\"(.*?)\"\);',gameDetailsStr)[0].split('","')
-    oddsList = []
     for gameDetails in gameDetailsList:
         subCompanyId = re.findall(r'(.*?)\^',gameDetails)[0]
         gameDetailList = gameDetails.split('^')[1].split(';')
