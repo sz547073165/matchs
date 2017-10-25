@@ -49,8 +49,8 @@ def one_match_handler(match):
                     sql_list.add(companyInsertSql % tuple(company))
                 for odds in odds_list:
                     sql_list.add(oddsInsertSql % tuple(odds))
-                match_detail_delete_sql = 'delete from match_detail where id = %s' % match_id
-                sql_list.add(match_detail_delete_sql)
+            match_detail_delete_sql = 'delete from match_detail where id = %s' % match_id
+            sql_list.add(match_detail_delete_sql)
     finally:
         sub_conn.close()
 

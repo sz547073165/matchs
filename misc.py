@@ -21,7 +21,7 @@ def getMatch(matchStr):
     simpleList = simpleStr.split('","')
     match.append(int(simpleList[0]))#id
     match.append(simpleList[2])#league
-    match.append(str(simpleList[43])+'-'+str(simpleList[36])+' '+ str(simpleList[11])+':00')#time
+    match.append(str(simpleList[12].split(',')[0])+'-'+str(simpleList[36])+' '+ str(simpleList[11])+':00')#time
     match.append(simpleList[5])#home
     match.append(simpleList[8])#guest
     match.append(int(simpleList[14]))#home_goal
